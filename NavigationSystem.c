@@ -3,7 +3,7 @@
 #include<stdlib.h>
 #include<math.h>
 
-#define SIZE 10
+#define SIZE 15
 
 struct ListNode
 {
@@ -30,6 +30,7 @@ struct Array
 };
 
 HWND hButton[SIZE][SIZE];
+HWND Main;
 int ChangeImage[SIZE][SIZE] = {1};
 int count = 0;
 HBITMAP hWhiteButton, hGreenButton, hBlueButton, hRedButton;
@@ -61,7 +62,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR Str, int nCmdShow
         return -2;
     }
 
-    CreateWindowW(L"NavigationClass", L"Navigator.io", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 10,10, 500, 500, NULL, NULL, NULL, NULL);
+    Main = CreateWindowW(L"NavigationClass", L"Navigator.io", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 10,10, 500, 500, NULL, NULL, NULL, NULL);
 
     MSG ui = {0};
     while(GetMessage(&ui, NULL, NULL, NULL))
@@ -90,11 +91,11 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT ui, WPARAM wp, LPARAM lp)
                         {
                             if(count == 0)
                             {
-                                src = i*10+j;
+                                src = i*SIZE+j;
                             }
                             else if(count == 1)
                             {
-                                dest = i*10+j;
+                                dest = i*SIZE+j;
                                 AStarAlgo(graph, src, dest);
                             }
                             count++;
@@ -141,36 +142,36 @@ void AddControls(HWND hWnd)
     {
         for(int j=0; j<SIZE; j++)
         {
-            x = j*10+i;
+            x = j*SIZE+i;
             hButton[i][j] = CreateWindowW(L"Button", NULL, WS_CHILD | WS_VISIBLE | BS_BITMAP, 32*i, 32*j, 32, 32, hWnd, (HMENU)hWhiteButton, NULL, NULL);
             SendMessageW(hButton[i][j], BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hWhiteButton);
             if(i != 0 && j != 0 && i!=SIZE-1 && j!=SIZE-1)
             {
-                AddEdge(graph, x-10, x);
-                AddEdge(graph, x+10, x);
+                AddEdge(graph, x-SIZE, x);
+                AddEdge(graph, x+SIZE, x);
                 AddEdge(graph, x-1, x);
                 AddEdge(graph, x+1, x);
-                AddEdge(graph, x+11, x);
-                AddEdge(graph, x+9, x);
-                AddEdge(graph, x-11, x);
-                AddEdge(graph, x-9, x);
+                AddEdge(graph, x+(SIZE+1), x);
+                AddEdge(graph, x+(SIZE-1), x);
+                AddEdge(graph, x-(SIZE+1), x);
+                AddEdge(graph, x-(SIZE-1), x);
             }
             else if(j == 0)
             {
                 if(i == 0)
                 {
-                    AddEdge(graph, x, x+10);
+                    AddEdge(graph, x, x+SIZE);
                     AddEdge(graph, x+1, x);
                 }
                 else if(i == SIZE - 1)
                 {
                     AddEdge(graph, x-1, x);
-                    AddEdge(graph, x+10, x);
+                    AddEdge(graph, x+SIZE, x);
                 }
                 else
                 {
                     AddEdge(graph, x+1, x);
-                    AddEdge(graph, x+11, x);
+                    AddEdge(graph, x+(SIZE+1), x);
                 }
             }
             else if(j == SIZE - 1)
@@ -178,30 +179,30 @@ void AddControls(HWND hWnd)
                 if(i == 0)
                 {
                     AddEdge(graph, x+1, x);
-                    AddEdge(graph, x-10, x);
+                    AddEdge(graph, x-SIZE, x);
                 }
                 else if(i == SIZE - 1)
                 {
-                    AddEdge(graph, x-10, x);
+                    AddEdge(graph, x-SIZE, x);
                     AddEdge(graph, x-1, x);
                 }
                 else
                 {
                     AddEdge(graph, x-1, x);
-                    AddEdge(graph, x-11, x);
-                    AddEdge(graph, x-9, x);
+                    AddEdge(graph, x-(SIZE+1), x);
+                    AddEdge(graph, x-(SIZE-1), x);
                 }
             }
             else
             {
                 if(i == 0)
                 {
-                    AddEdge(graph, x-10, x);
-                    AddEdge(graph, x-9, x);
+                    AddEdge(graph, x-SIZE, x);
+                    AddEdge(graph, x-(SIZE-1), x);
                 }
                 else if( i == SIZE - 1)
                 {
-                    AddEdge(graph, x + 10, x);
+                    AddEdge(graph, x + SIZE, x);
                 }
             }
         }
@@ -253,14 +254,14 @@ float Distance(float dest, float src)
     float dist = 0;
     if(dest - src > 0)
     {
-        float x = (dest/10 - src/10) * (dest/10 - src/10);
-        float y = (fmod(dest,10) - fmod(src,10)) * (fmod(dest,10) - fmod(src,10));
+        float x = (dest/SIZE - src/SIZE) * (dest/SIZE - src/SIZE);
+        float y = (fmod(dest,SIZE) - fmod(src,SIZE)) * (fmod(dest,SIZE) - fmod(src,SIZE));
         dist = sqrt(x + y);
     }
     else
     {
-        float x = (src/10 - dest/10) * (src/10 - dest/10);
-        float y = (fmod(src,10)- fmod(dest,10)) * (fmod(src,10)- fmod(dest,10));
+        float x = (src/SIZE - dest/SIZE) * (src/SIZE - dest/SIZE);
+        float y = (fmod(src,SIZE)- fmod(dest,SIZE)) * (fmod(src,SIZE)- fmod(dest,SIZE));
         dist = sqrt(x + y);
     }
     return dist * 100;
@@ -310,7 +311,7 @@ void Neighbors(int Number, struct Graph* graph)
     struct ListNode* curr = graph->array[Number].head;
     while(curr != NULL)
     {
-        SendMessageW(hButton[curr->data/10][curr->data%10], BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hRedButton);
+        SendMessageW(hButton[curr->data/SIZE][curr->data%SIZE], BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hRedButton);
         curr = curr->next;
     }
 }
@@ -393,14 +394,6 @@ void AStarAlgo(struct Graph* graph, int src, int dest)
             {
                 open->top++;
                 open->arr[open->top] = adj->data;
-                if(src == adj->data || dest == adj->data)
-                {
-                    SendMessageW(hButton[adj->data/10][adj->data%10], BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hGreenButton);
-                }
-                else
-                {
-                    SendMessageW(hButton[adj->data/10][adj->data%10], BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hRedButton);
-                }
                 adj->Parent = curr->data;
             }
             adj = adj->next;
@@ -412,11 +405,11 @@ void AStarAlgo(struct Graph* graph, int src, int dest)
         closed->arr[closed->top] = min;
         if(src == min || dest == min)
         {
-            SendMessageW(hButton[min/10][min%10], BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hGreenButton);
+            SendMessageW(hButton[min/SIZE][min%SIZE], BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hGreenButton);
         }
         else
         {
-            SendMessageW(hButton[min/10][min%10], BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hBlueButton);
+            SendMessageW(hButton[min/SIZE][min%SIZE], BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hBlueButton);
         }
     }
     printf("Node Found!!");
