@@ -46,7 +46,6 @@ void AddEdge(struct Graph*, int, int);
 struct Array* createList(int);
 int CheckNode(struct ListNode*, struct Array*);
 void AStarAlgo(struct Graph*, int, int);
-struct ListNode* GetSmallestFCost(struct Graph*, struct Array*, int, int);
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR Str, int nCmdShow)
 {
